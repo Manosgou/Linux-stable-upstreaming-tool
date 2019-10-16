@@ -57,18 +57,16 @@ def check_for_updates():
 
 
 def upstream():
-    print("Do you want to upstream(update) your current linux-stable version?(y/n)")
-    answer = input()
-    if answer == 'y' or answer == 'Y':
-        print("Working on it.....")
-    elif answer == 'n' or answer == 'N':
-        main()
-
+    print("1. Update to the latest version available")
+    print("1. Update to the specified version (e.g. -v 4.9.196)")
+    print("3. Back")
+    select = input("Select:")
+    if select =='1':
+        pass
+    elif select =='2':
+        pass
     else:
-        print("Aborting...")
-        t.sleep(0.5)
         main()
-
 
 def main():
     w = welcome()
