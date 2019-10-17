@@ -1,6 +1,7 @@
 import os
 import sys
 import requests
+from sh import git, ErrorReturnCode_128, ErrorReturnCode_1
 import time as t
 from bs4 import BeautifulSoup
 
@@ -27,52 +28,87 @@ def check_current_version():
     return kernel_version
 
 
-def latest_version():
+def versions_table():
     url = "https://www.kernel.org"
     page = requests.get(url)
     soup = BeautifulSoup(page.content, 'html.parser')
     releases_table = soup.find(id='releases')
     versions = releases_table.findAll('strong')
-    versions_table = []
+    vtable = []
     for i in versions:
-        versions_table.append(i.text)
+        vtable.append(i.text)
 
-    return versions_table[3:8]
+    return vtable[3:8]
 
 
 def check_for_updates():
     ccv = check_current_version()
-    current= ccv[0]+"."+ ccv[1]+"."+ ccv[2]
+    current = ccv[0]+"." + ccv[1]+"." + ccv[2]
     print("Your current linux stable version is: " + current)
-    vp = ccv[0]+"."+ ccv[1]
-    lv = latest_version()
-    matching = [s for s in lv if vp in s]       
+    vp = ccv[0]+"." + ccv[1]
+    lv = versions_table()
+    matching = [s for s in lv if vp in s]
+    latest = (','.join(map(str, matching)))
     if current in matching:
         print("You are up-to-date")
         t.sleep(0.5)
         sys.exit()
+
     else:
 
-        print("You need to update,latest linux stable is:", matching)
+        print("You need to update,latest linux stable is:" + latest)
+        return latest
+
+
+def remote():
+    git("remote", "add", "linux-stable",
+        "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/")
+
+
+def latest_version():
+    cfu = check_for_updates()
+    ver = "v"+cfu
+    try:
+        git("fetch", "linux-stable")
+        git("merge", ver)
+    except ErrorReturnCode_128:
+        print("Remote is missing")
+        remote()
+
+
+def specific_version(v):
+    ccv = check_current_version()
+    current = ccv[0]+"." + ccv[1]+"." + ccv[2]
+    print("Your current linux stable version is: " + current)
+    ver = "v"+v
+    try:
+        git("fetch", "linux-stable")
+        git("merge ", ver)
+    except ErrorReturnCode_128:
+        print("Remote is missing")
+        remote()
 
 
 def upstream():
     print("1. Update to the latest version available")
-    print("1. Update to the specified version (e.g. -v 4.9.196)")
+    print("2. Update to the specified version (e.g. -v 4.9.196)")
     print("3. Back")
     select = input("Select:")
-    if select =='1':
-        pass
-    elif select =='2':
-        pass
+    if select == '1':
+        latest_version()
+    elif select == '2':
+        remote()
+        v = input("Type version you want to merge(e.g 4.9.196):")
+        specific_version(v)
     else:
         main()
+
 
 def main():
     w = welcome()
     if w == '1':
         ccv = check_current_version()
-        current= ccv[0]+"."+ ccv[1]+"."+ ccv[2] 
+        current = ccv[0]+"." + ccv[1]+"." + ccv[2]
         print("Your current linux stable version is: " + current)
         print("Further more:")
         print("VERSION = ", ccv[0])
