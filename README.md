@@ -16,4 +16,5 @@ The script must be place isnide the kernel source,in order to work
 
 **NOTE**
 
-For now you can't update the linux kernel version using this script.The section of the code which is responsible for this action is under construction
+~~For now you can't update the linux kernel version using this script.The section of the code which is responsible for this action is under construction~~
+
