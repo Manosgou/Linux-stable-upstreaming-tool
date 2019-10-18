@@ -1,7 +1,7 @@
 import os
 import sys
 import requests
-from sh import git, ErrorReturnCode_128, ErrorReturnCode_1
+from sh import git, ErrorReturnCode_128,ErrorReturnCode_1
 import time as t
 from bs4 import BeautifulSoup
 
@@ -56,24 +56,29 @@ def check_for_updates():
 
     else:
 
-        print("You need to update,latest linux stable is:" + latest)
+        print("You need to update,latest linux stable is: " + latest)
         return latest
 
 
 def remote():
-    git("remote", "add", "linux-stable",
-        "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/")
-
+    
+    git("remote", "add", "linux-stable","https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/")
+    
 
 def latest_version():
     cfu = check_for_updates()
     ver = "v"+cfu
     try:
         git("fetch", "linux-stable")
-        git("merge", ver)
+        print("Remote linux-stable exists\nMerging...")
+        git("merge",ver)
     except ErrorReturnCode_128:
-        print("Remote is missing")
+        print("Remote is missing\nAdding remote")
         remote()
+        print("Remote has been added!\nTrying again....")
+        latest_version()
+    except ErrorReturnCode_1 as e:
+        print(e.stdout)
 
 
 def specific_version(v):
@@ -83,10 +88,16 @@ def specific_version(v):
     ver = "v"+v
     try:
         git("fetch", "linux-stable")
-        git("merge ", ver)
+        print("Remote linux-stable exists\nMerging...")
+        git("merge", ver)    
     except ErrorReturnCode_128:
-        print("Remote is missing")
+        print("Remote is missing\nAdding remote")
         remote()
+        print("Remote has been added!\nTrying again....")
+        specific_version(v)
+    except ErrorReturnCode_1 as e:
+        print(e.stdout)
+     
 
 
 def upstream():
@@ -98,7 +109,7 @@ def upstream():
         latest_version()
     elif select == '2':
         remote()
-        v = input("Type version you want to merge(e.g 4.9.196):")
+        v = input("Type version you want to merge(e.g 4.9.196): ")
         specific_version(v)
     else:
         main()
