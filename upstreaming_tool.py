@@ -1,7 +1,7 @@
 import os
 import sys
 import requests
-from sh import git, ErrorReturnCode_128, ErrorReturnCode_1
+from sh import git,ErrorReturnCode_128,ErrorReturnCode_1
 import time as t
 from bs4 import BeautifulSoup
 
@@ -74,6 +74,12 @@ def latest_version():
         print("Remote has been added!\nTrying again....")
         latest_version()
     except ErrorReturnCode_1 as e:
+        print("")
+        print("")
+        print("Merge is completed,resolve any existing conflicts")
+        t.sleep(5)
+        print("")
+        print("")
         print(e.stdout.decode())
 
 
@@ -92,6 +98,12 @@ def specific_version(v):
         print("Remote has been added!\nTrying again....")
         specific_version(v)
     except ErrorReturnCode_1 as e:
+        print("")
+        print("")
+        print("Merge is completed,resolve any existing conflicts")
+        t.sleep(5)
+        print("")
+        print("")
         print(e.stdout.decode())
 
 
@@ -125,7 +137,7 @@ def main():
         upstream()
     elif w == '4':
         print("Exiting...")
-        t.sleep(0.3)
+        t.sleep(0.5)
         sys.exit()
     else:
         print("You must select one of the options above")
