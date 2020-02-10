@@ -18,12 +18,27 @@ def welcome():
     return select
 
 
+def check_first_line():
+    with open('Makefile', 'r') as f:
+        for lines in f.readlines()[:1]:
+            if 'VERSION' not in f:
+                return True
+
+
 def check_current_version():
     kernel_version = []
-    with open('Makefile', 'r') as f:
-        for lines in f.readlines()[:3]:
-            for words in lines.split()[2:3]:
-                kernel_version.append(words)
+    first_line=check_first_line()
+    if first_line==True:
+        with open('Makefile', 'r') as f:
+            for lines in f.readlines()[1:4]:
+                for words in lines.split()[2:3]:
+                    kernel_version.append(words)
+        
+    else:
+        with open('Makefile', 'r') as f:
+            for lines in f.readlines()[:3]:
+                for words in lines.split()[2:3]:
+                    kernel_version.append(words)
     return kernel_version
 
 
@@ -51,6 +66,10 @@ def check_for_updates():
         print("You are up-to-date")
         t.sleep(0.5)
         sys.exit()
+    elif current not in matching:
+        print("You kernel version cannot be detected in kernel archive website\n(https://www.kernel.org/)")
+        print("Available versions:")
+        print(*lv, sep = "\n")
     else:
         print("You need to update,latest linux stable is: " + latest)
         return latest
